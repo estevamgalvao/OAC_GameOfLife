@@ -18,25 +18,25 @@
 				
 
 	
-	matriz:		.space	324 # preencho 18x18 espaços com 0
+	#matriz:		.space	324 # preencho 18x18 espaços com 0
 	
 	
 	
-	#matriz:		.byte	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-				0,3,2,2,2,2,2,2,2,2,2,2,2,2,2,2,3,0
-				0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0
-				0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0
-				0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0
-				0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0
-				0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0
-				0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0
-				0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0
-				0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0
-				0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0
-				0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0
-				0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0
-				0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0
-				0,3,2,2,2,2,2,2,2,2,2,2,2,2,2,2,3,0
+	matriz:		.byte	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+				0,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,0
+				0,-1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-1,0
+				0,-1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-1,0
+				0,-1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-1,0
+				0,-1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-1,0
+				0,-1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-1,0
+				0,-1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-1,0
+				0,-1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-1,0
+				0,-1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-1,0
+				0,-1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-1,0
+				0,-1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-1,0
+				0,-1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-1,0
+				0,-1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-1,0
+				0,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,0
 				0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
 	
 	
@@ -44,7 +44,7 @@
 	blue:		.word	0xFF
 	green:		.word	0xFF00
 	red:		.word	0xFF0000
-	white:		.word 	0xFFFFFF
+	white:		.word 	0xFFFFFFFF
 	stringStart:	.asciz 	"Digite o numero de pontos a serem inseridos: "
 	stringX:	.asciz	"Digite o ponto X: "
 	stringY:	.asciz	"Digite o ponto Y: "
@@ -78,7 +78,13 @@ main:
 	sw	t1, 0(t0)	#pinto o primeiro pixel do display com o valor carregado em t1
 	sw	t1, 4(t0)	#pinto o segundo pixel do display com o valor carregado em t1
 	sw	t1, 8(t0)	#pinto o terceiro pixel do display com o valor carregado em t1
-
+	
+	
+	lw	t5, 4(t0)
+	not	t5, t5
+	sw	t5, 4(t0)
+	
+	
 	li	a7, 4
 	la	a0, stringStart	#printo na tela a String de início
 	ecall
@@ -90,36 +96,43 @@ main:
 	sw	a0, 0(t2)	#armazeno o valor de a0 (qtd de pontos) em auxAdress
 	lw	s1, 0(t2) 	#leio o valor guardado em auxAdress e salvo em s1
 	
+	addi sp, sp, -4
+	sw ra,  0(sp)
 	
 	call 	writeUser
+	
+	lw ra, 0(sp)
+	addi sp, sp, 4
 	
 	#### EXIT ####
 	li	a7, 10
 	ecall
 	##############
 
-
-
+######################################### FUNÇÃO DE COPIAR CONTEÚDO DA MATRIZ PRO DISPLAY ##############################################
+# Ultilizo: t2, t0, t1 #
 copyToDisplay:
 	la	s4, matriz	#carrego o endereço do primeiro pixel da matriz
 	addi	s4, s4, 19	#faço o endereço de início ir uma linha pra baixo e uma coluna pro lado 18x18 -> 19 casas
 	
 	la	s5, display	#carrego o endereço do primeiro pixel do display
-loopCopyToDisplay:
 
-	li	s6, s6, 15
-	li	s7, s7, 15
+	li	s6, 15		#inicio contador de colunas
+	li	s7, 15		#inicio contador de linhas
+
+loopCopyToDisplay:
 	
 	lw	t0, 0(s4)	#carrego o valor do pixel atual na matriz
 	lw	t1, 0(s5)	#carrego o valor do pixel atual no display
 	
-	bne  	t0,t1,inverseDisplay
+	bne  	t0,t1,inverseDisplay	#comparo se os valores são iguais, caso não sejam quero inverter o valor do display -> lembrando que meus valores na matriz só podem ser -1 ou 0
 	
 	addi	s4, s4, 1	#ando um byte inteiro no "ponteiro" da matriz
 	addi	s5, s5, 4	#ando 4 bytes pois a exibição no display é em word
 	
-	addi	s6, s6, -1
-	beqz 	s6, loop2CopyToDisplay
+	
+	addi	s6, s6, -1	#decremento meu contador em 1
+	beqz 	s6, jumpBorderCopyToDisplay
 	
 
 
@@ -128,12 +141,22 @@ inverseDisplay:
 	not 	t2, t1
 	sw	t2, 0(s5)
 	
-loop2CopyToDisplay:
-		
+jumpBorderCopyToDisplay:
+	addi	s4, s4, 3	#faço o ponteiro da matriz pular a borda do final e do início da próxima linha e parar na primeira casa da "malha últil"
+	addi 	s7, s7, -1	#decremento o contador de linhas porque acabei de descer uma linha
+	li	s6, 15		#restauro o contador de colunas pois voltei para a coluna 0
+	
+	li 	t3, -1
+	bltz 	s7, jumpEndLineCopyToDisplay	#verifico se essa é a última linha
+	j 	loopCopyToDisplay
+
+jumpEndLineCopyToDisplay:
+	ret
 	
 	
 	
 ######################################### FUNÇÃO DE ESCRITA DOS PONTOS DO USUÁRIO ##############################################
+# Ultilizo: t2, t0, t1 #
 writeUser:
 	la	s4, matriz
 	addi	s4, s4, 19	#faço o endereço de início ir uma linha pra baixo e uma coluna pro lado 18x18 -> 19 casas
@@ -175,11 +198,13 @@ writeUser:
 	slli	s3,s3,1		#shifto o valor de s3 (Y) 1 vez -> Y*2 e salvo em s3
 	add	s3,s3,t0	#somo o valor de t0 com o de s3 -> Y*16 + Y*2 => Y*18
 	
-	add	s4, s4, s3	
-	add	s4, s4, s2
+	add	s4, s4, s3	#fiz o ponteiro da matriz receber + Y*18
+	add	s4, s4, s2	#fiz o ponteiro da matriz receber + X
 	
-	not	t0, 0(s4)	#inverto o valor de todos os bits do endereço e em seguida salvo no mesmo endereço
-	sw	t0, 0(s4)	#setei a matriz para começar sempre com 0, então meus valores serão sempre -1 ou 0 dentro da matriz
+	lb	t1, 0(s4)	#carrego o valor do pixel atual em t1
+	
+	not	t1, t1		#inverto o valor de todos os bits do endereço
+	sw	t1, 0(s4)	#setei a matriz para começar sempre com 0, então meus valores serão sempre -1 ou 0 dentro da matriz
 	
 	ret
 
