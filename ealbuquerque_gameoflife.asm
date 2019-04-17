@@ -1,5 +1,5 @@
 .data
-	display:	.byte	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+	display:	.word	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 				0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 				0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 				0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
@@ -22,7 +22,7 @@
 	
 	
 	
-	matriz:		.byte	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+	matriz:		.word	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 				0,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,0
 				0,-1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-1,0
 				0,-1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-1,0
@@ -45,6 +45,7 @@
 	green:		.word	0xFF00
 	red:		.word	0xFF0000
 	white:		.word 	0xFFFFFFFF
+	#white:		.byte	0xFF			= azul
 	stringStart:	.asciz 	"Digite o numero de pontos a serem inseridos: "
 	stringX:	.asciz	"Digite o ponto X: "
 	stringY:	.asciz	"Digite o ponto Y: "
@@ -70,7 +71,7 @@
 .text 
 
 main:
-
+	################### TESTE DE PINTURA COM NOT ######################
 	la	t0, display 	#carrego o endereço do primeiro pixel do display
 	la	t2, white 	#carrego o endereço da cor WHITE
 	lw	t1, 0(t2) 	#carrego o valor de 0 casas descoladas do endereço de WHITE
@@ -83,7 +84,9 @@ main:
 	lw	t5, 4(t0)
 	not	t5, t5
 	sw	t5, 4(t0)
-	
+	not	t5, t5
+	sw	t5, 12(t0)
+	###################################################################
 	
 	li	a7, 4
 	la	a0, stringStart	#printo na tela a String de início
@@ -100,6 +103,14 @@ main:
 	sw ra,  0(sp)
 	
 	call 	writeUser
+	
+	lw ra, 0(sp)
+	addi sp, sp, 4
+	
+	addi sp, sp, -4
+	sw ra,  0(sp)
+	
+	call 	copyToDisplay
 	
 	lw ra, 0(sp)
 	addi sp, sp, 4
@@ -127,8 +138,8 @@ loopCopyToDisplay:
 	
 	bne  	t0,t1,inverseDisplay	#comparo se os valores são iguais, caso não sejam quero inverter o valor do display -> lembrando que meus valores na matriz só podem ser -1 ou 0
 	
-	addi	s4, s4, 1	#ando um byte inteiro no "ponteiro" da matriz
-	addi	s5, s5, 4	#ando 4 bytes pois a exibição no display é em word
+	addi	s4, s4, 4	#ando um byte inteiro no "ponteiro" da matriz
+	addi	s5, s5, 16	#ando 4 bytes pois a exibição no display é em word
 	
 	
 	addi	s6, s6, -1	#decremento meu contador em 1
@@ -201,7 +212,7 @@ writeUser:
 	add	s4, s4, s3	#fiz o ponteiro da matriz receber + Y*18
 	add	s4, s4, s2	#fiz o ponteiro da matriz receber + X
 	
-	lb	t1, 0(s4)	#carrego o valor do pixel atual em t1
+	lw	t1, 0(s4)	#carrego o valor do pixel atual em t1
 	
 	not	t1, t1		#inverto o valor de todos os bits do endereço
 	sw	t1, 0(s4)	#setei a matriz para começar sempre com 0, então meus valores serão sempre -1 ou 0 dentro da matriz
