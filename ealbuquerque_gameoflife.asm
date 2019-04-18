@@ -72,20 +72,20 @@
 
 main:
 	################### TESTE DE PINTURA COM NOT ######################
-	la	t0, display 	#carrego o endereço do primeiro pixel do display
-	la	t2, white 	#carrego o endereço da cor WHITE
-	lw	t1, 0(t2) 	#carrego o valor de 0 casas descoladas do endereço de WHITE
+	#la	t0, display 	#carrego o endereço do primeiro pixel do display
+	#la	t2, white 	#carrego o endereço da cor WHITE
+	#lw	t1, 0(t2) 	#carrego o valor de 0 casas descoladas do endereço de WHITE
 	
-	sw	t1, 0(t0)	#pinto o primeiro pixel do display com o valor carregado em t1
-	sw	t1, 4(t0)	#pinto o segundo pixel do display com o valor carregado em t1
-	sw	t1, 8(t0)	#pinto o terceiro pixel do display com o valor carregado em t1
+	#sw	t1, 0(t0)	#pinto o primeiro pixel do display com o valor carregado em t1
+	#sw	t1, 4(t0)	#pinto o segundo pixel do display com o valor carregado em t1
+	#sw	t1, 8(t0)	#pinto o terceiro pixel do display com o valor carregado em t1
 	
 	
-	lw	t5, 4(t0)
-	not	t5, t5
-	sw	t5, 4(t0)
-	not	t5, t5
-	sw	t5, 12(t0)
+	#lw	t5, 4(t0)
+	#not	t5, t5
+	#sw	t5, 4(t0)
+	#not	t5, t5
+	#sw	t5, 12(t0)
 	###################################################################
 	
 	li	a7, 4
@@ -124,7 +124,7 @@ main:
 # Ultilizo: t2, t0, t1 #
 copyToDisplay:
 	la	s4, matriz	#carrego o endereço do primeiro pixel da matriz
-	addi	s4, s4, 19	#faço o endereço de início ir uma linha pra baixo e uma coluna pro lado 18x18 -> 19 casas
+	addi	s4, s4, 76	#faço o endereço de início ir uma linha pra baixo e uma coluna pro lado 18x18 -> 19 casas
 	
 	la	s5, display	#carrego o endereço do primeiro pixel do display
 
@@ -136,10 +136,12 @@ loopCopyToDisplay:
 	lw	t0, 0(s4)	#carrego o valor do pixel atual na matriz
 	lw	t1, 0(s5)	#carrego o valor do pixel atual no display
 	
+	
 	bne  	t0,t1,inverseDisplay	#comparo se os valores são iguais, caso não sejam quero inverter o valor do display -> lembrando que meus valores na matriz só podem ser -1 ou 0
 	
+	
 	addi	s4, s4, 4	#ando um byte inteiro no "ponteiro" da matriz
-	addi	s5, s5, 16	#ando 4 bytes pois a exibição no display é em word
+	addi	s5, s5, 4	#ando 4 bytes pois a exibição no display é em word
 	
 	
 	addi	s6, s6, -1	#decremento meu contador em 1
@@ -157,7 +159,7 @@ jumpBorderCopyToDisplay:
 	addi 	s7, s7, -1	#decremento o contador de linhas porque acabei de descer uma linha
 	li	s6, 15		#restauro o contador de colunas pois voltei para a coluna 0
 	
-	li 	t3, -1
+	li 	t3, -1		#o que é isso?
 	bltz 	s7, jumpEndLineCopyToDisplay	#verifico se essa é a última linha
 	j 	loopCopyToDisplay
 
@@ -170,7 +172,7 @@ jumpEndLineCopyToDisplay:
 # Ultilizo: t2, t0, t1 #
 writeUser:
 	la	s4, matriz
-	addi	s4, s4, 19	#faço o endereço de início ir uma linha pra baixo e uma coluna pro lado 18x18 -> 19 casas
+	addi	s4, s4, 76	#faço o endereço de início ir uma linha pra baixo e uma coluna pro lado 18x18 -> 19 casas
 	
 	
 	
