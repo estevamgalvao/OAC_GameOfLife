@@ -16,7 +16,7 @@
 				0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 				0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 	
-	matrix:		.byte	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+	matrix:		.word	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 				0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 				0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 				0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
@@ -31,7 +31,7 @@
 				0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 				0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 				0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-				0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+				0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,6
 
 	stringStart:	.asciz 	"Digite o numero de pontos a serem inseridos: "
 	stringX:	.asciz	"Digite o ponto X: "
@@ -89,15 +89,27 @@ loopPoints:
 	
 	
 	addi 	sp, sp, -12	#alocando espaço na pilha para salvar nessa ordem: STACK POINTER -> X -> Y
-	sw 	s1, 8(sp)	#salvando Y na pilha
+	sw 	s2, 8(sp)	#salvando Y na pilha
 	sw 	s1, 4(sp)	#salvando X na pilha
 	sw 	ra, 0(sp)	#salvando SP na pilha
 	
-	call 	stampMatrix
+	call 	stampMatrix	#marco o ponto (X,Y) na matriz
 	
 	lw 	ra, 0(sp)
 	addi 	sp, sp, 12	#restaurando posição na pilha
 	
+	###################
+	# MARQUEI O PONTO #
+	###################
+	
+	addi	s0, s0, -1
+	
+	bnez 	s0, loopPoints
+	
+	#### EXIT ####
+	li	a7, 10
+	ecall
+	##############
 	
 	
 	
@@ -131,6 +143,7 @@ stampMatrix:
 	not	t4, t4		#inverto esse valor, pois na matriz só há 0 ou -1
 	sw	t4, 0(t0)	#salvo o valor invertido na matriz, ou seja, marquei o ponto escolhido
 	
+	ret 
 	
 	
 	
