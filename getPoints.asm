@@ -115,7 +115,16 @@ loopPoints:
 	lw ra, 0(sp)
 	addi sp, sp, 4
 
-		
+	######################
+	# ATUALIZEI A MATRIZ #
+	######################
+	
+	
+	
+	
+	
+	
+	
 
 	
 	
@@ -134,7 +143,9 @@ loopPoints:
 #					F U N Ç Õ E S					   #
 #											   #
 ############################################################################################
-userStampMatrix:
+
+
+userStampMatrix: ##################### MARCAR NA MATRIZ O PIXEL ESCOLHIDO PELO USUÁRIO ####################
 
 	la	t0, matrix	#salvando o endereço inicial da matriz em T0
 	addi	t0, t0, 76	#saltando 19(x4) casa para ir de fato na malha últil da matriz (pular bordas iniciais)
@@ -162,9 +173,11 @@ userStampMatrix:
 	
 	ret 
 	
-##################### ATUALIZAR O DISPLAY DE ACORDO COM A MATRIZ ####################
 
-updateDisplay:
+
+
+
+updateDisplay: ##################### ATUALIZAR O DISPLAY DE ACORDO COM A MATRIZ ####################
 
 	la	t0, matrix	#salvando o endereço inicial da matriz em T0
 	addi	t0, t0, 76	#saltando 19(x4) casa para ir de fato na malha últil da matriz (pular bordas iniciais)
@@ -209,9 +222,9 @@ jumpBorder:
 	
 	li	t3, 15		#reinicio meu contador de colunas
 
-	j	compareDisplay
+	j	compareDisplay	#voltar para comparar o pŕoximo pixel
 
 returnFromDisplay:
 	
-	ret
+	ret			#retornar a main
 	
