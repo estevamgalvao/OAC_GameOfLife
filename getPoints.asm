@@ -46,7 +46,7 @@
 	#	s0: Quantidades de pontos X&Y
 	#	s1: Ponto X atual
 	#	s2: Ponto Y atual
-	#	s3: 
+	#	s3: Contador 15
 	#	s4: 
 	#	s5: 
 	#	s6: 
@@ -93,7 +93,7 @@ loopPoints:
 	sw 	s1, 4(sp)	#salvando X na pilha
 	sw 	ra, 0(sp)	#salvando SP na pilha
 	
-	call 	stampMatrix	#marco o ponto (X,Y) na matriz
+	call 	userStampMatrix	#marco o ponto (X,Y) na matriz
 	
 	lw 	ra, 0(sp)
 	addi 	sp, sp, 12	#restaurando posição na pilha
@@ -105,6 +105,14 @@ loopPoints:
 	addi	s0, s0, -1
 	
 	bnez 	s0, loopPoints
+	
+	
+paintDisplay:
+	
+
+		
+
+	
 	
 	#### EXIT ####
 	li	a7, 10
@@ -118,8 +126,8 @@ loopPoints:
 	
 
 ####################################### F U N Ç Õ E S #######################################
-stampMatrix:
-	la	t0, matrix	#salvando o endereço inicial da matriz em t0
+userStampMatrix:
+	la	t0, matrix	#salvando o endereço inicial da matriz em T0
 	addi	t0, t0, 76	#saltando 19(x4) casa para ir de fato na malha últil da matriz (pular bordas iniciais)
 	
 	# preciso deslocar meu registrador de endereço para o ponto inserido pelo usuário
@@ -144,6 +152,17 @@ stampMatrix:
 	sw	t4, 0(t0)	#salvo o valor invertido na matriz, ou seja, marquei o ponto escolhido
 	
 	ret 
+	
+
+
+updateDisplay:
+	la	t0, matrix	#salvando o endereço inicial da matriz em T0
+	addi	t0, t0, 76	#saltando 19(x4) casa para ir de fato na malha últil da matriz (pular bordas iniciais)
+	
+	la	t1, display	#salvando o endereço do display em T1
+	
+	li	t3, 16		#PAREI AQUI ACABEI DE INICIALIZAR O CONTADOR PARA VARRER O DISPLAY E A MATRIZ E ENTÃO ATUALIZAR O DISPLAY
+	
 	
 	
 	
