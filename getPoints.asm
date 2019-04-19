@@ -32,7 +32,7 @@
 				0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 				0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 				0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-				0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,6,0
+				0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 				0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 
 	stringStart:	.asciz 	"Digite o numero de pontos a serem inseridos: "
@@ -50,7 +50,7 @@
 	#	s2: Ponto Y atual
 	#	s3: Endereço Matriz
 	#	s4: Endereço Display
-	#	s5: 
+	#	s5: Constante de delay 10000
 	#	s6: 
 	#	s7: 
 	#	s8:
@@ -113,33 +113,71 @@ loopPoints:
 	bnez 	s0, loopPoints
 	
 	
-	addi 	sp, sp, -8
+	addi 	sp, sp, -12
+	sw	s4, 8(sp)
 	sw 	s3, 4(sp)
 	sw 	ra, 0(sp)
 	
-	call updateDisplay
+	call	updateDisplay
+	
+	lw 	ra, 0(sp)
+	addi 	sp, sp, 12
+
+	#######################
+	# ATUALIZEI O DISPLAY #
+	#######################
+	
+	li	s5, 100000
+	
+firstDelay:
+
+	addi	s5, s5, -1
+	bnez 	s5, firstDelay
+	
+loopKeepPlaying:
+
+	addi	sp, sp, -8
+	sw	s3, 4(sp)
+	sw	ra, 0(sp)
+	
+	call	play
 	
 	lw 	ra, 0(sp)
 	addi 	sp, sp, 8
+	
+	#######################
+	# JOGUEI GAME OF LIFE #
+	#######################
+	
+	
+	addi 	sp, sp, -12
+	sw	s4, 8(sp)
+	sw 	s3, 4(sp)
+	sw 	ra, 0(sp)
+	
+	call	updateDisplay
+	
+	lw 	ra, 0(sp)
+	addi 	sp, sp, 12
+	
+	#######################
+	# ATUALIZEI O DISPLAY #
+	#######################
+	
+	li	s5, 100000
+	
+delay:
 
-	######################
-	# ATUALIZEI A MATRIZ #
-	######################
+	addi	s5, s5, -1
+	bnez 	s5, delay
 	
-	
-	
-	
-	
-	
-	
-
+	j	loopKeepPlaying
 	
 	
 	#### EXIT ####
 	li	a7, 10
 	ecall
 	##############
-	
 	
 	
 	
@@ -189,10 +227,10 @@ updateDisplay: ##################### ATUALIZAR O DISPLAY DE ACORDO COM A MATRIZ 
 	lw	t0, 4(sp)	#salvando o endereço inicial da matriz em T0
 	addi	t0, t0, 76	#saltando 19(x4) casa para ir de fato na malha últil da matriz (pular bordas iniciais)
 	
-	la	t1, display	#salvando o endereço do display em T1
+	lw	t1, 8(sp)	#salvando o endereço do display em T1
 	
-	li	t3, 15		#PAREI AQUI ACABEI DE INICIALIZAR O CONTADOR PARA VARRER O DISPLAY E A MATRIZ E ENTÃO ATUALIZAR O DISPLAY
-	li	t6, 15
+	li	t3, 15		#colunas
+	li	t6, 15		#linhas
 	
 compareDisplay:
 
@@ -239,10 +277,100 @@ returnFromDisplay:
 
 
 
-play:
-	nop
 
 
+play: ##################### GAME OF LIFE ATUALIZANDO A MATRIZ ####################
+
+	lw	t0, 4(sp)	#salvando o endereço inicial da matriz em T0
+	addi	t0, t0, 76	#saltando 19(x4) casa para ir de fato na malha últil da matriz (pular bordas iniciais)
+	
+	li	t1, 15		#colunas
+	li	t2, 15		#linhas
+	li	t5, -2
+	li	t6, -3
+	
+sumNeighborhood:
+	
+	li	t3, 0
+	
+	lw	t4, -76(t0)
+	add	t3, t3, t4
+	
+	lw	t4, -72(t0)
+	add	t3, t3, t4
+	
+	lw	t4, -68(t0)
+	add	t3, t3, t4
+	
+	lw	t4, -4(t0)
+	add	t3, t3, t4
+	
+	lw	t4, 4(t0)
+	add	t3, t3, t4
+	
+	lw	t4, 68(t0)
+	add	t3, t3, t4
+	
+	lw	t4, 72(t0)
+	add	t3, t3, t4
+	
+	lw	t4, 76(t0)
+	add	t3, t3, t4
+	
+	lw	t4, 0(t0)
+	
+	beqz 	t4, deadPixel
+	
+alivePixel:
+	
+	beq 	t3, t5, nextPixel	
+	beq 	t3, t6, nextPixel
+	j	switchLife
+
+deadPixel:
+	
+	beq 	t3, t6, switchLife
+	j	nextPixel
+	
+
+switchLife:
+	
+	not	t4, t4
+	sw	t4, 0(t0)
+	j	nextPixel
+	
+nextPixel:
+
+	beqz  	t1, jumpPlayBorder	#caso meu contador de colunas chegou ao fim, significa que eu tenho que pular bordas na matriz
+	
+
+jumpPlayPixel:
+	
+	addi	t0, t0, 4	#incremento meu ponteiro da matriz para próxima casa
+	addi	t1, t1, -1	#decremento meu contador de colunas
+	j	sumNeighborhood
+	
+	
+jumpPlayBorder:
+	
+	beqz 	t2, returnFromPlay	#caso eu entrei aqui, ou seja, minhas colunas já são 0 e meu T2 também for0, significa que minha matriz acabou
+	
+	addi	t0, t0, 12	#pulo 3 casas para chegar no próximo pixel da linha de baixo pulando as bordas
+	addi	t2, t2, -1	#decremento meu contador de linhas pois desci uma linha
+	
+	li	t1, 15		#reinicio meu contador de colunas
+
+	j	sumNeighborhood	#voltar para verificar a vizinhaça do pŕoximo pixel
+	
+
+returnFromPlay:
+	
+	ret
+
+	
+	
+	
+	
 
 
 
