@@ -31,7 +31,9 @@
 				0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 				0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 				0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-				0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,6
+				0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+				0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,6,0
+				0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 
 	stringStart:	.asciz 	"Digite o numero de pontos a serem inseridos: "
 	stringX:	.asciz	"Digite o ponto X: "
@@ -46,8 +48,8 @@
 	#	s0: Quantidades de pontos X&Y
 	#	s1: Ponto X atual
 	#	s2: Ponto Y atual
-	#	s3: Contador 15
-	#	s4: 
+	#	s3: Endereço Matriz
+	#	s4: Endereço Display
 	#	s5: 
 	#	s6: 
 	#	s7: 
@@ -60,6 +62,9 @@
 .text
 
 getPoints:	#Conseguir X e Y, os quais o usuário gostaria de pintar no display e começar o jogo
+
+	la	s3, matrix
+	la	s4, display
 	
 	li	a7, 4
 	la	a0, stringStart	#printo na tela a String de início
@@ -88,7 +93,8 @@ loopPoints:
 	mv	s2, a0		#guardo em S2 o valor de Y
 	
 	
-	addi 	sp, sp, -12	#alocando espaço na pilha para salvar nessa ordem: STACK POINTER -> X -> Y
+	addi 	sp, sp, -16	#alocando espaço na pilha para salvar nessa ordem: STACK POINTER -> X -> Y -> endereço matriz
+	sw	s3, 12(sp)	#salvando o endereço da matriz na pilha
 	sw 	s2, 8(sp)	#salvando Y na pilha
 	sw 	s1, 4(sp)	#salvando X na pilha
 	sw 	ra, 0(sp)	#salvando SP na pilha
@@ -96,7 +102,7 @@ loopPoints:
 	call 	userStampMatrix	#marco o ponto (X,Y) na matriz
 	
 	lw 	ra, 0(sp)
-	addi 	sp, sp, 12	#restaurando posição na pilha
+	addi 	sp, sp, 16	#restaurando posição na pilha
 	
 	###################
 	# MARQUEI O PONTO #
@@ -107,13 +113,14 @@ loopPoints:
 	bnez 	s0, loopPoints
 	
 	
-	addi sp, sp, -4
-	sw ra,  0(sp)
+	addi 	sp, sp, -8
+	sw 	s3, 4(sp)
+	sw 	ra, 0(sp)
 	
 	call updateDisplay
 	
-	lw ra, 0(sp)
-	addi sp, sp, 4
+	lw 	ra, 0(sp)
+	addi 	sp, sp, 8
 
 	######################
 	# ATUALIZEI A MATRIZ #
@@ -147,7 +154,7 @@ loopPoints:
 
 userStampMatrix: ##################### MARCAR NA MATRIZ O PIXEL ESCOLHIDO PELO USUÁRIO ####################
 
-	la	t0, matrix	#salvando o endereço inicial da matriz em T0
+	lw	t0, 12(sp)	#salvando o endereço inicial da matriz em T0
 	addi	t0, t0, 76	#saltando 19(x4) casa para ir de fato na malha últil da matriz (pular bordas iniciais)
 	
 	# preciso deslocar meu registrador de endereço para o ponto inserido pelo usuário
@@ -179,7 +186,7 @@ userStampMatrix: ##################### MARCAR NA MATRIZ O PIXEL ESCOLHIDO PELO U
 
 updateDisplay: ##################### ATUALIZAR O DISPLAY DE ACORDO COM A MATRIZ ####################
 
-	la	t0, matrix	#salvando o endereço inicial da matriz em T0
+	lw	t0, 4(sp)	#salvando o endereço inicial da matriz em T0
 	addi	t0, t0, 76	#saltando 19(x4) casa para ir de fato na malha últil da matriz (pular bordas iniciais)
 	
 	la	t1, display	#salvando o endereço do display em T1
@@ -228,3 +235,22 @@ returnFromDisplay:
 	
 	ret			#retornar a main
 	
+
+
+
+
+play:
+	nop
+
+
+
+
+
+
+
+
+
+
+
+
+
