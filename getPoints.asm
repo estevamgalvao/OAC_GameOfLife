@@ -110,7 +110,6 @@ loopPoints:
 	addi sp, sp, -4
 	sw ra,  0(sp)
 	
-	
 	call updateDisplay
 	
 	lw ra, 0(sp)
@@ -184,7 +183,7 @@ compareDisplay:
 
 updateDisplayContinue:
 
-	bnez 	t3, jumpBorder	#caso meu contador de colunas chegou ao fim, significa que eu tenho que pular bordas na matriz
+	beqz  	t3, jumpBorder	#caso meu contador de colunas chegou ao fim, significa que eu tenho que pular bordas na matriz
 	
 	
 jumpPixel:
