@@ -107,8 +107,14 @@ loopPoints:
 	bnez 	s0, loopPoints
 	
 	
-paintDisplay:
+	addi sp, sp, -4
+	sw ra,  0(sp)
 	
+	
+	call updateDisplay
+	
+	lw ra, 0(sp)
+	addi sp, sp, 4
 
 		
 
@@ -125,8 +131,12 @@ paintDisplay:
 	
 	
 
-####################################### F U N Ç Õ E S #######################################
+############################################################################################
+#					F U N Ç Õ E S					   #
+#											   #
+############################################################################################
 userStampMatrix:
+
 	la	t0, matrix	#salvando o endereço inicial da matriz em T0
 	addi	t0, t0, 76	#saltando 19(x4) casa para ir de fato na malha últil da matriz (pular bordas iniciais)
 	
@@ -153,16 +163,56 @@ userStampMatrix:
 	
 	ret 
 	
-
+##################### ATUALIZAR O DISPLAY DE ACORDO COM A MATRIZ ####################
 
 updateDisplay:
+
 	la	t0, matrix	#salvando o endereço inicial da matriz em T0
 	addi	t0, t0, 76	#saltando 19(x4) casa para ir de fato na malha últil da matriz (pular bordas iniciais)
 	
 	la	t1, display	#salvando o endereço do display em T1
 	
-	li	t3, 16		#PAREI AQUI ACABEI DE INICIALIZAR O CONTADOR PARA VARRER O DISPLAY E A MATRIZ E ENTÃO ATUALIZAR O DISPLAY
+	li	t3, 15		#PAREI AQUI ACABEI DE INICIALIZAR O CONTADOR PARA VARRER O DISPLAY E A MATRIZ E ENTÃO ATUALIZAR O DISPLAY
+	li	t6, 15
+	
+compareDisplay:
+
+	lw	t4, 0(t0)	#carrego o valor do pixel na matriz e salvo em T4
+	lw	t5, 0(t1)	#carrego o valor do pixel no display e salvo em T5
+	
+	bne   	t4, t5, paintDisplay	#comparo se eles são iguais, caso não, vou para label de pintar o display
+
+updateDisplayContinue:
+
+	bnez 	t3, jumpBorder	#caso meu contador de colunas chegou ao fim, significa que eu tenho que pular bordas na matriz
 	
 	
+jumpPixel:
 	
+	addi	t0, t0, 4	#incremento meu ponteiro da matriz para próxima casa
+	addi	t1, t1, 4	#incremento meu ponteiro do display para próxima casa
+	addi	t3, t3, -1	#decremento meu contador de colunas
+	j	compareDisplay
+
+paintDisplay:
+
+	not	t5, t5		#inverto o valor do pixel no display
+	sw	t5, 0(t1)	#pinto ele no endereço apontado pelo "ponteiro" do display
+	j	updateDisplayContinue	#volto a função de updateDisplay para verificar os outros pixels
+
+jumpBorder:
+	
+	beqz 	t6, returnFromDisplay	#caso eu entrei aqui, ou seja, minhas colunas já são 0 e meu T6 também for0, significa que minha matriz acabou
+	
+	addi	t0, t0, 12	#pulo 3 casas para chegar no próximo pixel da linha de baixo pulando as bordas
+	addi	t1, t1, 4	#incremento meu ponteiro do display para próxima casa
+	addi	t6, t6, -1	#decremento meu contador de linhas pois desci uma linha
+	
+	li	t3, 15		#reinicio meu contador de colunas
+
+	j	compareDisplay
+
+returnFromDisplay:
+	
+	ret
 	
