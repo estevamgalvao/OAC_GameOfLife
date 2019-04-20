@@ -58,23 +58,22 @@
 
 
 
-
-
 	#########################################################
 	#							#
-	#	s0: Quantidades de pontos X&Y
-	#	s1: Ponto X atual
-	#	s2: Ponto Y atual
-	#	s3: Endereço Matriz
-	#	s4: Endereço Display
-	#	s5: Endereço Matriz Auxiliar
-	#	s6: 
-	#	s7: 
-	#	s8:
-	#	s9:
-	#	s10:
-	#	s11:
-	#
+	#	s0: Quantidades de pontos X&Y			#
+	#	s1: Ponto X atual				#
+	#	s2: Ponto Y atual				#
+	#	s3: Endereço Matriz				#
+	#	s4: Endereço Display				#
+	#	s5: Endereço Matriz Auxiliar			#
+	#	s6: 						#
+	#	s7: 						#
+	#	s8:						#
+	#	s9:						#
+	#	s10:						#
+	#	s11:						#
+	#							#
+	#########################################################
 
 .text
 
@@ -231,8 +230,6 @@ delay:
 	
 	
 	
-	
-	
 
 ############################################################################################
 #					F U N Ç Õ E S					   #
@@ -324,11 +321,6 @@ returnFromDisplay:
 	
 
 
-
-
-
-
-
 updateAuxMatrix: ##################### ATUALIZAR O MATRIZ AUXILIAR DE ACORDO COM A MATRIZ ####################
 
 	lw	t0, 4(sp)	#salvando o endereço inicial da matriz em T0
@@ -380,7 +372,6 @@ returnFromAuxMatrix:
 	
 	ret			#retornar a main
 	
-
 
 
 
@@ -440,15 +431,6 @@ returnFromMatrix:
 
 
 
-
-
-
-
-
-
-
-
-
 play: ##################### GAME OF LIFE ATUALIZANDO A MATRIZ ####################
 	
 	
@@ -465,8 +447,8 @@ play: ##################### GAME OF LIFE ATUALIZANDO A MATRIZ ##################
 	
 sumNeighborhood:
 	
-	li	t3, 0
-	
+	li	t3, 0		#zerando o acumulador que irá verificar a soma dos 8 vizinhos
+				#faço a verificação de cada vizinho logo abaixo
 	lw	t4, -76(t0)
 	add	t3, t3, t4
 	
@@ -497,22 +479,22 @@ sumNeighborhood:
 	
 alivePixel:
 	li	t5, -2
-	beq 	t3, t5, nextPixel
+	beq 	t3, t5, nextPixel	#se o pixel está vivo, verifico se ele tem 2 outros vizinhos vivos
 	li	t5, -3	
-	beq 	t3, t5, nextPixel
+	beq 	t3, t5, nextPixel	#se o pixel está vivo, verifico se ele tem 3 outros vizinhos vivos
 	j	switchLife
 
 deadPixel:
 	
 	li	t5, -3	
-	beq 	t3, t5, switchLife
+	beq 	t3, t5, switchLife	#se o pixel está morto, verifico se ele tem 3 vizinhos vivos
 	j	nextPixel
 	
 
 switchLife:
 	
 	not	t4, t4
-	sw	t4, 0(t6)
+	sw	t4, 0(t6)	#inverto o valor do pixel selecionado, indicando que ele estava morto e agora vivo ou vice-versa
 	j	nextPixel
 	
 nextPixel:
